@@ -14,10 +14,12 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.AppDialogPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.base.BasePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.service.SidebarService;
 import com.liskovsoft.smartyoutubetv2.common.exoplayer.selector.TrackSelectorUtil;
+import com.liskovsoft.smartyoutubetv2.common.misc.Skins;
 import com.liskovsoft.smartyoutubetv2.common.misc.VideoCategoryManager;
 import com.liskovsoft.smartyoutubetv2.common.prefs.EndScreenData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.InfoCardData;
+import com.liskovsoft.smartyoutubetv2.common.prefs.MainUIData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.MusicAutoplayData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
@@ -158,7 +160,20 @@ public class PlayerSettingsPresenter extends BasePresenter<Void> {
 
         List<OptionItem> options = new ArrayList<>();
 
-        // No clock and quality info options: the controls show neither (see PlaybackTransportRowPresenter)
+        // Clock and quality info options: only available in Classic skin (the controls in Modern and Hybrid skins do not show them)
+        if (Skins.getAppliedSkinId() == MainUIData.SKIN_CLASSIC) {
+            options.add(UiOptionItem.from(getContext().getString(R.string.player_show_clock),
+                    option -> mPlayerData.setClockEnabled(option.isSelected()),
+                    mPlayerData.isClockEnabled()));
+
+            options.add(UiOptionItem.from(getContext().getString(R.string.player_show_quality_info),
+                    option -> mPlayerData.setQualityInfoEnabled(option.isSelected()),
+                    mPlayerData.isQualityInfoEnabled()));
+
+            options.add(UiOptionItem.from(getContext().getString(R.string.player_show_quality_info_bitrate),
+                    option -> mPlayerTweaksData.setQualityInfoBitrateEnabled(option.isSelected()),
+                    mPlayerTweaksData.isQualityInfoBitrateEnabled()));
+        }
 
         options.add(UiOptionItem.from(getContext().getString(R.string.player_ui_on_next),
                 option -> mPlayerTweaksData.setPlayerUiOnNextEnabled(option.isSelected()),

@@ -41,6 +41,8 @@ import androidx.leanback.widget.RowPresenter;
 
 import com.liskovsoft.sharedutils.helpers.DateHelper;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.SeekBarSegment;
+import com.liskovsoft.smartyoutubetv2.common.misc.Skins;
+import com.liskovsoft.smartyoutubetv2.common.prefs.MainUIData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
 import com.liskovsoft.smartyoutubetv2.tv.ui.mod.leanback.misc.SeekBar;
@@ -443,7 +445,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
             mEndingTimeFormat = rootView.getContext().getString(com.liskovsoft.smartyoutubetv2.tv.R.string.player_ending_time);
             mRemainingTimeFormat = rootView.getContext().getString(com.liskovsoft.smartyoutubetv2.tv.R.string.player_remaining_time);
             mAdditionalInfo = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.additional_info);
-            // No quality info (resolution, fps, codec) or date and time lines in the controls, in every skin
+            // Initially hidden, shown during playback only in Classic skin (see setQualityInfo, setDateVisibility)
             mQualityInfo.setVisibility(View.GONE);
             mDateTime.setVisibility(View.GONE);
             mTimeInfo = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.time_info);
@@ -794,17 +796,36 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
         }
 
         /**
-         * The controls show no quality info (resolution, fps, codec): the line stays hidden
+         * Quality info (resolution, fps, codec): only shown in Classic skin
          */
         void setQualityInfo(String content) {
-            mQualityInfo.setVisibility(View.GONE);
+            if (Skins.getAppliedSkinId() == MainUIData.SKIN_CLASSIC) {
+                if (content != null) {
+                    if (mPlayerData.isQualityInfoEnabled()) {
+                        mQualityInfo.setText(content);
+                        mQualityInfo.setVisibility(View.VISIBLE);
+                    } else {
+                        mQualityInfo.setVisibility(View.GONE);
+                    }
+                }
+            } else {
+                mQualityInfo.setVisibility(View.GONE);
+            }
         }
 
         /**
-         * The controls show no date and time line: it stays hidden
+         * Date and time line: only shown in Classic skin
          */
         void setDateVisibility(boolean isVisible) {
-            mDateTime.setVisibility(View.GONE);
+            if (Skins.getAppliedSkinId() == MainUIData.SKIN_CLASSIC) {
+                if (mPlayerData.isClockEnabled()) {
+                    mDateTime.setVisibility(View.VISIBLE);
+                } else {
+                    mDateTime.setVisibility(View.GONE);
+                }
+            } else {
+                mDateTime.setVisibility(View.GONE);
+            }
         }
 
         void setSeekPreviewTitle(String title) {
