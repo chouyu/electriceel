@@ -75,6 +75,12 @@ public class DiagnosticsContractTest {
         mSavedLastTime = debuggingData.getLastSubmissionTime();
         mSavedLastFailureTs = debuggingData.getLastSubmittedFailureTs();
         mSavedLastStartTs = debuggingData.getLastSubmittedStartTs();
+        // The players' tracks since the device booted, in each failure's state, one refused past the retries
+        AudioTracksSinceBoot.resetForTesting();
+        AudioTracksSinceBoot.init(getContext());
+        AudioTracksSinceBoot.onBuilt();
+        AudioTracksSinceBoot.onRefused();
+        AudioTracksSinceBoot.onFailed();
     }
 
     @After
@@ -86,6 +92,7 @@ public class DiagnosticsContractTest {
         PlayerFailureLog.useForTesting(null);
         VideoStartLog.useForTesting(null);
         VideoStarts.resetForTesting();
+        AudioTracksSinceBoot.resetForTesting();
         PlayerTweaksData.instance(getContext()).setPlayerDataSource(mSavedEngine);
         DebuggingData.instance(getContext()).setLastSubmission(mSavedLastId, mSavedLastFailureTs, mSavedLastStartTs, mSavedLastTime);
     }
@@ -132,6 +139,10 @@ public class DiagnosticsContractTest {
         assertTrue(failures.toString().contains("\"playbackMode\""));
         assertTrue(report.getJSONObject("app").getJSONObject("settings").has("playbackMode"));
         assertTrue(report.getJSONObject("device").getJSONObject("audioOutput").has("mediaOutput"));
+        // The tracks since the device booted, and the firmware: checked too
+        assertTrue(failures.toString().contains("\"sinceBoot\""));
+        assertTrue(failures.toString().contains("\"builtBeforeFirstFailure\":1"));
+        assertTrue(report.getJSONObject("system").has("buildId"));
         assertTrue(report.getJSONArray("videoStarts").toString().contains("\"" + VideoStarts.STAGE_PROTECTION + "\""));
 
         assertEquals(new HashSet<>(Arrays.asList(PlayerFailure.KIND_ENGINE_ERROR, PlayerFailure.KIND_FORMAT_ERROR,

@@ -823,8 +823,10 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
                 restartEngine = false;
             }
         } else if (type == PlayerEventListener.ERROR_TYPE_RENDERER && error instanceof AudioSink.InitializationException) {
-            // Whose refusal it is, and whether the device would take another config (see AudioOutputProbe)
-            failure.detail("audioOutput", AudioOutputProbe.probe(getContext()));
+            // Whose refusal it is, why, and whether the device would take another config (see AudioOutputProbe)
+            AudioSink.InitializationException refusal = (AudioSink.InitializationException) error;
+            failure.detail("audioOutput", AudioOutputProbe.probe(getContext(), refusal.sampleRate, refusal.channelConfig,
+                    refusal.bufferSize));
 
             // The device refused a new AudioTrack even after DefaultAudioSink retried (see AudioTrackInitRetry). Once, it can be the
             // app's own: a seek briefly holds two tracks. The format plays fine, so don't save another one. A reload frees the old

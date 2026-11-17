@@ -178,7 +178,8 @@ public final class DeviceCapabilities {
     }
 
     /**
-     * The AudioTracks of the app's players since its process started (see AudioTrackCounts)
+     * The AudioTracks of the app's players since its process started (see AudioTrackCounts), and since the device booted (see
+     * AudioTracksSinceBoot)
      */
     private static JSONObject buildAudioTracks() throws JSONException {
         JSONObject result = new JSONObject();
@@ -186,6 +187,9 @@ public final class DeviceCapabilities {
         result.put("releasing", AudioTrackCounts.getReleasing());
         result.put("built", AudioTrackCounts.getBuilt());
         result.put("refused", AudioTrackCounts.getRefused());
+        result.put("failed", AudioTrackCounts.getFailed());
+        // Null before it counts: left out
+        result.putOpt("sinceBoot", AudioTracksSinceBoot.build());
 
         return result;
     }

@@ -28,6 +28,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.views.ViewManager;
 import com.liskovsoft.smartyoutubetv2.common.app.views.WebBrowserView;
 import com.liskovsoft.smartyoutubetv2.common.diagnostics.AppExits;
 import com.liskovsoft.smartyoutubetv2.common.diagnostics.AudioOutputProbe;
+import com.liskovsoft.smartyoutubetv2.common.diagnostics.AudioTracksSinceBoot;
 import com.liskovsoft.smartyoutubetv2.common.diagnostics.LastState;
 import com.liskovsoft.smartyoutubetv2.common.exoplayer.ExoMediaSourceFactory;
 import com.liskovsoft.smartyoutubetv2.common.prefs.HomeScreenPlaylistsData;
@@ -104,6 +105,8 @@ public class MainApplication extends MultiDexApplication implements Configuratio
         LastState.onProcessStart(this);
         // When the TV or the receiver last came or went, for a refused AudioTrack (see ErrorFixerController)
         AudioOutputProbe.init(this);
+        // The players' AudioTracks counted since the device booted, for a refused one (see DeviceCapabilities#buildState)
+        AudioTracksSinceBoot.init(this);
         setupViewManager();
 
         // The channels can be updated with nothing else of the app running

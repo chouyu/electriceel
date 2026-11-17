@@ -115,6 +115,12 @@ public interface AudioSink {
      * The underlying {@link AudioTrack}'s state, if applicable.
      */
     public final int audioTrackState;
+    /** SmartTube fix: the requested sample rate in Hz, for a track of the same config to be tried. */
+    public final int sampleRate;
+    /** SmartTube fix: the requested channel configuration. */
+    public final int channelConfig;
+    /** SmartTube fix: the requested buffer size in bytes. */
+    public final int bufferSize;
 
     /**
      * @param audioTrackState The underlying {@link AudioTrack}'s state, if applicable.
@@ -127,6 +133,9 @@ public interface AudioSink {
       super("AudioTrack init failed: " + audioTrackState + ", Config(" + sampleRate + ", "
           + channelConfig + ", " + bufferSize + ")");
       this.audioTrackState = audioTrackState;
+      this.sampleRate = sampleRate;
+      this.channelConfig = channelConfig;
+      this.bufferSize = bufferSize;
     }
 
   }

@@ -667,7 +667,13 @@ public final class DefaultAudioSink implements AudioSink {
       try {
         initialize(presentationTimeUs);
       } catch (InitializationException e) {
-        audioTrackInitRetry.onFailure(e, nowMs);
+        try {
+          audioTrackInitRetry.onFailure(e, nowMs);
+        } catch (InitializationException failed) {
+          // Refused past the retries: the player is told
+          AudioTrackCounts.onFailed();
+          throw failed;
+        }
         Log.w(TAG, "Retrying AudioTrack creation: " + e.getMessage());
         return false;
       }

@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 /**
  * What Settings → Debugging → Submit data sends (schema 1, see openapi.yaml of ElectricEelDataRestAPI): the app's settings, the
@@ -41,6 +42,7 @@ import java.util.TimeZone;
  */
 public final class DiagnosticsReport {
     public static final int SCHEMA = 1;
+    private static final Pattern BUILDER_NAME = Pattern.compile("\\beng\\.[^.\\s]+");
 
     private DiagnosticsReport() {
     }
@@ -280,6 +282,11 @@ public final class DiagnosticsReport {
         system.put("product", Build.PRODUCT);
         system.put("hardware", Build.HARDWARE);
         system.put("sku", VERSION.SDK_INT >= 31 ? nullable(Build.SKU) : JSONObject.NULL);
+        // The firmware: e.g. which Shield Experience a device bug is in, and whether an update fixed it
+        system.put("buildId", nullable(scrubBuilder(Build.ID)));
+        system.put("buildDisplay", nullable(scrubBuilder(Build.DISPLAY)));
+        system.put("buildIncremental", nullable(scrubBuilder(VERSION.INCREMENTAL)));
+        system.put("securityPatch", nullable(VERSION.SECURITY_PATCH));
 
         return system;
     }
@@ -364,6 +371,15 @@ public final class DiagnosticsReport {
 
     private static Object nullable(@Nullable Object value) {
         return value != null ? value : JSONObject.NULL;
+    }
+
+    /**
+     * A ROM built by hand has who built it in its build number, e.g. "eng.alice.20211010.123456" (an eng or userdebug build's): maybe
+     * the user. Taken out.
+     */
+    @Nullable
+    private static String scrubBuilder(@Nullable String text) {
+        return text != null ? BUILDER_NAME.matcher(text).replaceAll("eng.<user>") : null;
     }
 
     private static String formatUtc(long ms) {
